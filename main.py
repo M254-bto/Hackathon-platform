@@ -78,7 +78,7 @@ def get_accuracy_scores():
 # Main Function
 def main():
     st.sidebar.title("Navigation")
-    page = st.sidebar.radio("Choose a page", ["Signup", "Login", "Team"])
+    page = st.sidebar.radio("Choose a page", ["Signup", "Login", "Team", "Data"])
 
     if page == "Signup":
         st.header("Signup")
@@ -113,7 +113,6 @@ def main():
             if st.button(team['name']):
                 join_team(team['id'])
                 st.success(f"Welcome to team {team['name']}!")
-                
 
         if st.button("Create Team"):
             team_name = st.text_input("Team name")
@@ -125,8 +124,13 @@ def main():
                 st.success(f"Team {team_name} successfully created!")
             else:
                 st.error("Team name and description are required.")
+                
+    elif page == "Data":
+        disp = st.sidebar.radio("Choose a page", ["Score", "Leaderboard"])
+        if disp == "Score":
+        
 
-        elif disp == "Home":
+    
             st.title("Upload submission file")
             st.write("Here you can upload your submission file")
             st.title("CSV File Upload Example")
@@ -147,7 +151,7 @@ def main():
                     response = upload_csv(csv_file_upload.name, csv_content.encode('utf-8'))
 
                     # Display response
-                    st.write(response.content)
+                    st.write(f"Score:      {response.json()['score']}")
         elif disp == "Leaderboard":
             resp = get_accuracy_scores()
             st.title("Where's Your Team 😅!!")
