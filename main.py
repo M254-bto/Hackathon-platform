@@ -68,7 +68,9 @@ def upload_csv(filename, file_content):
     response = requests.post(url, files=files, headers=headers)
     return response
 
-
+def get_accuracy_scores():
+    url = "http://localhost:8000/leaderboard"
+    return send_request(url)
 
 
 
@@ -76,7 +78,7 @@ def upload_csv(filename, file_content):
 # Main Function
 def main():
     st.sidebar.title("Navigation")
-    page = st.sidebar.radio("Choose a page", ["Signup", "Login", "Main"])
+    page = st.sidebar.radio("Choose a page", ["Signup", "Login", "Team"])
 
     if page == "Signup":
         st.header("Signup")
@@ -100,32 +102,29 @@ def main():
                 if 'key' in response_data.content.decode():
                     st.success(f"Welcome back, {username}!")
                     st.session_state['key'] = response_data.content.decode().split('"')[3]
-                    st.sidebar.radio("Choose a page", ["Home", "Leaderboard"])
                 else:
                     st.error(f"Login failed: {response_data['detail']}")
-    elif page == "Main":
-        disp = st.sidebar.radio("Choose a page", ["Team", "Home", "Leaderboard"])
-        if disp == "Team":
-            st.title("This is a user dashboard")
-            st.write("Here you can create a team or join a team")
-            res = list_teams()
-            for team in res:
-                if st.button(team['name']):
-                    join_team(team['id'])
-                    st.success(f"Welcome to team {team['name']}!")
-                    
+    elif page == "Team":
+        
+        st.title("This is a user dashboard")
+        st.write("Here you can create a team or join a team")
+        res = list_teams()
+        for team in res:
+            if st.button(team['name']):
+                join_team(team['id'])
+                st.success(f"Welcome to team {team['name']}!")
+                
 
-            if st.button("create a team"):
-                team_name = st.text_input("Team name")
-                team_description = st.text_input("Team description")
-                if st.button('Create'):
-                    if team_name and team_description:
-                        res = create_team(team_name, team_description)
-                        st.write(res.content.decode())
-                        st.success(f"Team {team_name} successfully created!")
-                        
-                    else:
-                        st.error("Something went wrong.")
+        if st.button("Create Team"):
+            team_name = st.text_input("Team name")
+            team_description = st.text_input("Team description")
+
+            if team_name and team_description:
+                res = create_team(team_name, team_description)
+                st.write(res.content.decode())
+                st.success(f"Team {team_name} successfully created!")
+            else:
+                st.error("Team name and description are required.")
 
         elif disp == "Home":
             st.title("Upload submission file")
@@ -148,8 +147,21 @@ def main():
                     response = upload_csv(csv_file_upload.name, csv_content.encode('utf-8'))
 
                     # Display response
-                    st.write(response.json())
-        
+                    st.write(response.content)
+        elif disp == "Leaderboard":
+            resp = get_accuracy_scores()
+            st.title("Where's Your Team 😅!!")
+            header_cols = st.columns(3)
+            header_cols[0].write("Index")
+            header_cols[1].write("Accuracy")
+            header_cols[2].write("Team")
+
+            # Display data in columns with row indexes
+            for idx, i in enumerate(resp, start=1):
+                cols = st.columns(3)
+                cols[0].write(f'{idx}')
+                cols[1].write(f'{i["score"]:.2f}')  # Format the score as needed
+                cols[2].write(i["team"])
    
 
 if __name__ == "__main__":
