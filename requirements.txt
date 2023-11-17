@@ -14,6 +14,6 @@ scikit-learn==1.0.2
 scipy==1.7.3
 six==1.16.0
 sqlparse==0.4.4
-threadpoolctl==3.2.0
+threadpoolctl==3.1.0
 typing_extensions==4.8.0
 tzdata==2023.3
