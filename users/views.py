@@ -18,7 +18,7 @@ from rest_framework.views import APIView
 from io import BytesIO, StringIO
 import io
 import pandas as pd
-from .models import Accuracy, UploadedFile
+from .models import Accuracy
 from sklearn.metrics import accuracy_score
 import os
 from test_labels.labels import get_labels_advanced,  get_labels_beginner
