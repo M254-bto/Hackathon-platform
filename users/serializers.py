@@ -1,6 +1,6 @@
 # import serializers
 from rest_framework import serializers
-from .models import  Team, Member
+from .models import  Team, Member, Accuracy
 from django.contrib.auth.models import User
 
 class UserSerializer(serializers.ModelSerializer):
@@ -18,4 +18,9 @@ class TeamSerializer(serializers.ModelSerializer):
 class MemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = Member
+        fields = '__all__'
+
+class AccuracySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Accuracy
         fields = '__all__'

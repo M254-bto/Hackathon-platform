@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
+from django.conf import settings
 from rest_framework import viewsets
-from .serializers import UserSerializer, TeamSerializer, MemberSerializer
+from .serializers import UserSerializer, TeamSerializer, MemberSerializer, AccuracySerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import api_view
@@ -12,8 +13,15 @@ from rest_framework import generics
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import permission_classes, authentication_classes
 from .models import Team, Member
-
-
+from rest_framework.parsers import FileUploadParser
+from rest_framework.views import APIView
+from io import BytesIO, StringIO
+import io
+import pandas as pd
+from .models import Accuracy, UploadedFile
+from sklearn.metrics import accuracy_score
+import os
+from test_labels.labels import get_labels_advanced,  get_labels_beginner
 
 
 
@@ -98,6 +106,8 @@ class TeamDetailView(generics.RetrieveUpdateDestroyAPIView):
 #add member to team
 class JoinTeamView(generics.CreateAPIView):
     serializer_class = MemberSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
 
     def create(self, request, *args, **kwargs):
         user = self.request.user
@@ -119,3 +129,65 @@ class JoinTeamView(generics.CreateAPIView):
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
+
+def calculate_accuracy(column_to_compare, other_column_to_compare):
+    return accuracy_score(column_to_compare, other_column_to_compare)
+
+
+class FileUploadView(APIView):
+    parser_classes = (FileUploadParser,)
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+
+    def post(self, request, *args, **kwargs):
+        file_obj = request.data['file']
+ 
+
+        # Read the CSV file using pandas
+        content = file_obj.read().decode('utf-8') 
+        df = pd.read_csv(pd.io.common.StringIO(content), skiprows=2, skipfooter=1, engine='python') 
+        
+
+       
+        # # Access a column for comparison (Replace 'column_name' with the actual column name)
+        column_to_compare = df['bank_account']  
+         
+
+        # # Perform the comparison (Replace this logic with your actual comparison logic)
+        accuracy = accuracy_score(column_to_compare, get_labels_beginner())
+      
+        # # Get the team associated with the member making the request (Replace this logic)
+        team = Team.objects.get(member__user=request.user)
+       
+        # # Store the accuracy score associated with the team in the database
+        accuracy_model = Accuracy(score=accuracy, team=team)
+        accuracy_model.save()
+
+        # Return a response
+        return Response({'message': 'Accuracy score calculated and stored successfully', "score": accuracy}, status=status.HTTP_200_OK)
+    
+
+#get all accuracy scores ordered in descending order by score 
+@api_view(['GET'])
+@permission_classes((AllowAny, ))
+@authentication_classes((TokenAuthentication,))
+def get_accuracy_scores(request):
+    if request.method == 'GET':
+        accuracy_scores = Accuracy.objects.all().order_by('-score')
+        accuracy_serializer = AccuracySerializer(accuracy_scores, many=True)
+
+        # Extract team details and serialize them separately
+        team_ids = [item['team'] for item in accuracy_serializer.data]
+        teams = Team.objects.filter(id__in=team_ids)
+        team_serializer = TeamSerializer(teams, many=True)
+
+        # Replace team ID with team name in the serialized data
+        for item in accuracy_serializer.data:
+            team_id = item['team']
+            team_data = next((team for team in team_serializer.data if team['id'] == team_id), None)
+            if team_data:
+                item['team'] = team_data['name']
+
+        return Response(accuracy_serializer.data)

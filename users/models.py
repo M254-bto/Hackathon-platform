@@ -21,3 +21,13 @@ class Member(models.Model):
 
     def __str__(self):
         return self.user.username
+
+
+class Accuracy(models.Model):
+    score = models.FloatField()
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'Accuracy Score: {self.score} for Team: {self.team}'
+    
+
