@@ -123,9 +123,10 @@ def main():
             team_description = st.text_input("Team description")
 
             if team_name and team_description:
-                res = create_team(team_name, team_description)
-                st.write(res.content.decode())
-                st.success(f"Team {team_name} successfully created!")
+                if st.button("create"):
+                    res = create_team(team_name, team_description)
+                    st.write(res.content.decode())
+                    st.success(f"Team {team_name} successfully created!")
             else:
                 st.error("Team name and description are required.")
                 
