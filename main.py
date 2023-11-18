@@ -109,7 +109,6 @@ def main():
                 else:
                     st.error(f"Login failed: {response_data['detail']}")
     elif page == "Team":
-        
         st.title("This is a user dashboard")
         st.write("Here you can create a team or join a team")
         res = list_teams()
@@ -118,24 +117,22 @@ def main():
                 join_team(team['id'])
                 st.success(f"Welcome to team {team['name']}!")
 
-        if st.button("Create Team"):
-            team_name = st.text_input("Team name")
-            team_description = st.text_input("Team description")
-            if st.button("create"):
-                if team_name and team_description:
-                
-                    res = create_team(team_name, team_description)
-                    st.write(res.content.decode())
-                    st.success(f"Team {team_name} successfully created!")
-                else:
-                    st.error("Team name and description are required.")
+        st.write("Or create a team")
+        team_name = st.text_input("Team name")
+        team_description = st.text_input("Team description")
+
+        if st.button("Create"):
+            if team_name and team_description:
+                res = create_team(team_name, team_description)
+                st.write(res.content.decode())
+                st.success(f"Team {team_name} successfully created!")
+
+            else:
+                st.error("Team name and description are required.")
                 
     elif page == "Data":
         disp = st.sidebar.radio("Choose a page", ["Score", "Leaderboard"])
         if disp == "Score":
-        
-
-    
             st.title("Upload submission file")
             st.write("Here you can upload your submission file")
             st.title("CSV File Upload Example")
@@ -171,7 +168,7 @@ def main():
                 cols[0].write(f'{idx}')
                 cols[1].write(f'{i["score"]:.2f}')  # Format the score as needed
                 cols[2].write(i["team"])
-   
+    
 
 if __name__ == "__main__":
     main()
