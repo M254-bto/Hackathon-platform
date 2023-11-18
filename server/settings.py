@@ -15,6 +15,7 @@ from corsheaders.defaults import default_methods
 from corsheaders.defaults import default_headers
 from dotenv import load_dotenv
 import os
+import dj_database_url
 
 load_dotenv('./.env')  # 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -59,10 +60,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = ['*']
-CORS_ALLOW_METHODS = (
-    *default_methods,
-)
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+
 
 CORS_ALLOW_HEADERS = (
     *default_headers,
@@ -107,15 +107,18 @@ WSGI_APPLICATION = 'server.wsgi.application'
 #     }
 # }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': os.getenv("NAME"),
+#         'USER': os.getenv("USER"),
+#         'PASSWORD': os.getenv("PASSWORD"),
+#         'HOST': os.getenv("HOST"),
+#         'PORT': os.getenv("PORT"),
+#     }
+# }
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.getenv("NAME"),
-        'USER': os.getenv("USER"),
-        'PASSWORD': os.getenv("PASSWORD"),
-        'HOST': os.getenv("HOST"),
-        'PORT': os.getenv("PORT"),
-    }
+	"default": dj_database_url.parse(os.environ.get("DATABASE_URL"))
 }
 
 
