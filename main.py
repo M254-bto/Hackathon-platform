@@ -1,7 +1,11 @@
 import streamlit as st
 import requests
 import pandas as pd
+
 # import home, leaderboard, team
+
+
+
 
 # Function to send requests with authorization header
 def send_request(url, method='GET', data=None):
@@ -17,30 +21,30 @@ def send_request(url, method='GET', data=None):
 
 # Signup Function
 def signup(username, email, password):
-    url = "http://localhost:8000/register/"
+    url = "https://dsaichack.onrender.com/register/"
     data = {'username': username, 'email': email, 'password': password}
     return requests.post(url, json=data)
 
 # Login Function
 def login(username, password):
-    url = "http://localhost:8000/auth/login/"
+    url = "https://dsaichack.onrender.com/auth/login/"
     data = {'username': username, 'password': password}
     return requests.post(url, json=data)
 
 # Create Team
 def create_team(team_name, team_description):
-    url = "http://localhost:8000/teams/"
+    url = "https://dsaichack.onrender.com/teams/"
     data = {'name': team_name, 'description': team_description}
     return send_request(url, method='POST', data=data)
 
 # List Teams
 def list_teams():
-    url = "http://localhost:8000/teams/"
+    url = "https://dsaichack.onrender.com/teams/"
     return send_request(url)
 
 # Join Team
 def join_team(team_id):
-    url = f"http://localhost:8000/teams/join/{team_id}/"
+    url = f"https://dsaichack.onrender.com/teams/join/{team_id}/"
     return send_request(url, method='POST')
 
 # Redirect to login after signup
@@ -52,7 +56,7 @@ def join_team(team_id):
 
 
 # def upload_file(file_content):
-#     url = "http://localhost:8000/upload/"
+#     url = "https://dsaichack.onrender.com/upload/"
 #     files = {'file': ('dummy.txt', file_content)}
 #     headers = {'Authorization': f'Token {st.session_state.get("key", "")}'}
 
@@ -60,7 +64,7 @@ def join_team(team_id):
 #     return response
 
 def upload_csv(filename, file_content):
-    url = "http://localhost:8000/upload/"
+    url = "https://dsaichack.onrender.com/upload/"
     files = {'file': (filename, file_content)}
     headers = {'Authorization': f'Token {st.session_state.get("key", "")}',
                'Content-Disposition': f'inline ; filename={filename}'}
@@ -69,7 +73,7 @@ def upload_csv(filename, file_content):
     return response
 
 def get_accuracy_scores():
-    url = "http://localhost:8000/leaderboard"
+    url = "https://dsaichack.onrender.com/leaderboard"
     return send_request(url)
 
 
